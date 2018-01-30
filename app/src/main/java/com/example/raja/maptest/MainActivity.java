@@ -21,6 +21,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 public class MainActivity extends AppCompatActivity{
 
     private LocationHelper locationHelper;
+    //private LocationHelperNew locationHelperNew;
     private static final String TAG = "MainActivity";
 
     private TextView txtLocation;
@@ -31,6 +32,8 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
         txtLocation = (TextView) findViewById(R.id.txt_location);
         initLocationHelper();
+//        Location location  = locationHelper.getLocation();
+//        txtLocation.setText("Static location "+location.getLatitude() + " , "+location.getLongitude());
 
 
     }
@@ -42,7 +45,6 @@ public class MainActivity extends AppCompatActivity{
                 Status status = locationSettingsResult.getStatus();
                 switch (status.getStatusCode()) {
                     case LocationSettingsStatusCodes.SUCCESS:
-
                         break;
                 }
             }
@@ -60,9 +62,19 @@ public class MainActivity extends AppCompatActivity{
         locationHelper.startTrackingLocation();
     }
 
+    private void initLocationHelperNew() {
+//        locationHelperNew = new LocationHelperNew(MainActivity.this);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
         locationHelper.stopTrackingLocation();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        locationHelper.startTrackingLocation();
     }
 }

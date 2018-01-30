@@ -3,22 +3,18 @@ package com.example.raja.maptest;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.SquareCap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +22,12 @@ import java.util.List;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private LocationHelper locationHelper;
+    private LocationHelperLibrary locationHelper;
     private List<Location> locationList = new ArrayList<>();
 
     private boolean isTrackingStart;
-    private Polyline polyline;
     private PolylineOptions polylineOptions;
+    private SquareCap squareCap = new SquareCap();
 
 
     @Override
@@ -72,24 +68,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void initLocationHelper() {
-        locationHelper = new LocationHelper(MapsActivity.this, new ResultCallback<LocationSettingsResult>() {
-            @Override
-            public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
-                Status status = locationSettingsResult.getStatus();
-                switch (status.getStatusCode()) {
-                    case LocationSettingsStatusCodes.SUCCESS:
-
-                        break;
-                }
-            }
-        });
+        locationHelper = new LocationHelperLibrary(MapsActivity.this);
         locationHelper.setLocationListener(new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                drawMap(location);
+                if (location != null) {
+                    Log.e("onLocationChanged: ", location.getLatitude() + " , " +location.getLongitude());
+                    drawMap(location);
+                }
             }
         });
-        locationHelper.startTrackingLocation();
     }
 
     @Override
@@ -109,8 +97,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void drawMap(Location location) {
         if (mMap == null || location == null)
             return;
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.addPolyline(polylineOptions.add(latLng));
+        polylineOptions.endCap(squareCap);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         if (!isTrackingStart) {
             isTrackingStart = true;
